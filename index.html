@@ -107,6 +107,11 @@ function guardarInicio(){
   localStorage.setItem("horaInicio",new Date());
   localStorage.setItem("lugarSalida",document.getElementById("lugarSalida").value);
   alert("Inicio guardado");
+  document.getElementById("kmSalida").disabled = true;
+  document.getElementById("combSalida").disabled = true;
+  document.getElementById("lugarSalida").disabled = true;
+  document.getElementById("fotoSalida").disabled = true;
+  document.querySelector(".inicio").disabled = true;
 }
 
 function cargarImagen(file){
@@ -293,4 +298,5 @@ if(navigator.canShare && navigator.canShare({files:[file]})){
 </script>
 </body>
 </html>
+
 
