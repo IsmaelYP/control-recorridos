@@ -3,303 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Recorridos IYP</title>
+<title>Control de Recorridos Ismael</title>
 
 <style>
 body{
-  font-family: Arial, sans-serif;
-  background:#eef2f7;
-  display:flex;
-  justify-content:center;
+    background:#121212;
+    font-family:Arial;
+    color:white;
+    padding:20px;
 }
-.container{
-  background:white;
-  padding:20px;
-  margin:20px;
-  border-radius:16px;
-  width:100%;
-  max-width:420px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+.container{ max-width:500px; margin:auto; }
+.card{
+    background:#1e1e1e;
+    padding:20px;
+    border-radius:15px;
 }
-h1{text-align:center;color:#1e3a8a;}
-label{font-weight:bold;margin-top:15px;display:block;}
-input, select, button{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:16px;
+input, select{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border-radius:8px;
+    border:none;
 }
-button{border:none;font-weight:bold;margin-top:15px;cursor:pointer;}
-.inicio{background:#16a34a;color:white;}
-.final{background:#2563eb;color:white;}
-.btn-whatsapp{background:#25D366;color:white;}
-.resultado{margin-top:20px;text-align:center;}
-img{max-width:100%;margin-top:10px;border-radius:10px;}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+.guardar{ background:#00c853; color:white; }
+.whatsapp{ background:#25D366; color:white; }
+.vaciar{ background:#d50000; color:white; }
+
+.barra{ display:flex; margin:10px 0; }
+.segmento{
+    flex:1;
+    height:18px;
+    margin:2px;
+    background:#333;
+    border-radius:3px;
+}
+.activo{ background:#00e676; }
+.agotado{
+    background:red !important;
+    animation:parpadeo 1s infinite;
+}
+@keyframes parpadeo{
+    0%{opacity:1;}
+    50%{opacity:0.3;}
+    100%{opacity:1;}
+}
+.alerta{
+    color:red;
+    font-weight:bold;
+    text-align:center;
+}
+.item{
+    background:#2a2a2a;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:8px;
+    font-size:14px;
+}
+a{ color:#4fc3f7; }
+img{
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
+}
 </style>
 </head>
-
 <body>
+
 <div class="container">
+<div class="card">
 
-<h1>🚗 Control de Recorridos...</h1>
+<h2>Control de Recorridos Ismael</h2>
 
-<label>Lugar de Salida</label>
-<input type="text" id="lugarSalida" value="Oficina">
+<label>Lugar</label>
+<input type="text" id="lugar">
 
-<label>Kilometraje salida</label>
-<input type="number" id="kmSalida">
+<label>Kilometraje</label>
+<input type="number" id="kilometraje">
 
-<label>Combustible salida</label>
-<select id="combSalida"></select>
+<label>Foto del Tablero</label>
+<input type="file" id="foto" accept="image/*" capture="environment">
+<img id="preview">
 
-<label>Foto salida</label>
-<input type="file" accept="image/*" capture="environment" id="fotoSalida">
+<label>Combustible</label>
+<select id="combustible" onchange="actualizarBarra()">
+<option value="0">0/8</option>
+<option value="1">1/8</option>
+<option value="2">2/8</option>
+<option value="3">3/8</option>
+<option value="4">4/8</option>
+<option value="5">5/8</option>
+<option value="6">6/8</option>
+<option value="7">7/8</option>
+<option value="8" selected>8/8</option>
+</select>
 
-<button class="inicio" onclick="guardarInicio()">Guardar Inicio</button>
+<div class="barra" id="barra"></div>
+<div class="alerta" id="alerta"></div>
 
-<hr>
-<label>Destino</label>
-<input type="text" id="destino">
-  
-<label>Kilometraje regreso</label>
-<input type="number" id="kmRegreso">
+<button class="guardar" onclick="guardar()">Guardar</button>
+<button class="whatsapp" onclick="enviarWhatsApp()">📤 Enviar a WhatsApp</button>
+<button class="vaciar" onclick="vaciarHistorial()">🗑 Vaciar Historial</button>
 
-<label>Combustible regreso</label>
-<select id="combRegreso"></select>
+<h3>Historial</h3>
+<div id="lista"></div>
 
-<label>Foto regreso</label>
-<input type="file" accept="image/*" capture="environment" id="fotoRegreso">
-
-<button class="final" onclick="calcularRecorrido()">Generar Reporte</button>
-
-<button class="btn-whatsapp" onclick="compartirWhatsApp()" id="btnWhats" style="display:none">
-Compartir por WhatsApp
-</button>
-
-<div class="resultado">
-<img id="imgGenerada">
 </div>
-
 </div>
 
 <script>
 
-const combSalida=document.getElementById("combSalida");
-const combRegreso=document.getElementById("combRegreso");
+let preview = document.getElementById("preview");
 
-for(let i=0;i<=8;i++){
-  combSalida.add(new Option(i+"/8",i));
-  combRegreso.add(new Option(i+"/8",i));
+document.getElementById("foto").addEventListener("change", function(e){
+    if(e.target.files[0]){
+        let reader = new FileReader();
+        reader.onload = function(){
+            preview.src = reader.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+function crearBarra(){
+    let barra = document.getElementById("barra");
+    barra.innerHTML="";
+    for(let i=0;i<8;i++){
+        let div = document.createElement("div");
+        div.classList.add("segmento");
+        barra.appendChild(div);
+    }
+}
+crearBarra();
+
+function actualizarBarra(){
+    let valor = parseInt(document.getElementById("combustible").value);
+    let segmentos = document.querySelectorAll(".segmento");
+    let alerta = document.getElementById("alerta");
+
+    segmentos.forEach((seg,i)=>{
+        seg.classList.remove("activo","agotado");
+        if(i < valor){
+            seg.classList.add("activo");
+        }
+    });
+
+    if(valor === 0){
+        segmentos.forEach(seg=>seg.classList.add("agotado"));
+        alerta.innerHTML="🚨 COMBUSTIBLE AGOTADO";
+    } else {
+        alerta.innerHTML="";
+    }
 }
 
-let imagenBase64="";
-
-function formatearFecha(fecha){
-  const d=new Date(fecha);
-  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+function obtenerGPS(){
+    return new Promise((resolve, reject)=>{
+        navigator.geolocation.getCurrentPosition(
+            pos => resolve({
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude
+            }),
+            err => reject(err)
+        );
+    });
 }
 
-function guardarInicio(){
-  localStorage.setItem("kmSalida",document.getElementById("kmSalida").value);
-  localStorage.setItem("combSalida",combSalida.value);
-  localStorage.setItem("horaInicio",new Date());
-  localStorage.setItem("lugarSalida",document.getElementById("lugarSalida").value);
-  alert("Inicio guardado");
-  document.getElementById("kmSalida").disabled = true;
-  document.getElementById("combSalida").disabled = true;
-  document.getElementById("lugarSalida").disabled = true;
-  document.getElementById("fotoSalida").disabled = true;
-  document.querySelector(".inicio").disabled = true;
-}
+async function guardar(){
 
-function cargarImagen(file){
-  return new Promise(resolve=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const img=new Image();
-      img.onload=()=>resolve(img);
-      img.src=e.target.result;
+    let lugar = document.getElementById("lugar").value;
+    let kilometraje = document.getElementById("kilometraje").value;
+    let combustible = document.getElementById("combustible").value;
+    let foto = preview.src || "";
+
+    if(!lugar || !kilometraje){
+        alert("Completa los campos");
+        return;
+    }
+
+    let gps = {lat:"No disponible", lon:"No disponible"};
+
+    try{
+        gps = await obtenerGPS();
+    }catch{
+        alert("No se pudo obtener GPS");
+    }
+
+    let historial = JSON.parse(localStorage.getItem("historial")) || [];
+
+    let registro = {
+        fecha: new Date().toLocaleString(),
+        lugar,
+        kilometraje,
+        combustible,
+        lat: gps.lat,
+        lon: gps.lon,
+        foto
     };
-    reader.readAsDataURL(file);
-  });
+
+    historial.push(registro);
+    localStorage.setItem("historial", JSON.stringify(historial));
+
+    mostrarHistorial();
+    alert("Guardado correctamente ✅");
 }
 
-async function generarImagen(datos){
+async function enviarWhatsApp(){
 
-const canvas=document.createElement("canvas");
-const ctx=canvas.getContext("2d");
+    let historial = JSON.parse(localStorage.getItem("historial")) || [];
 
-canvas.width=1000;
-canvas.height=1250;
+    // Si no hay registros, intentamos guardar automáticamente
+    if(historial.length === 0){
+        await guardar();
+        historial = JSON.parse(localStorage.getItem("historial")) || [];
+        
+        if(historial.length === 0){
+            alert("No se pudo generar el registro");
+            return;
+        }
+    }
 
-ctx.fillStyle="#0f172a";
-ctx.fillRect(0,0,canvas.width,canvas.height);
+    let u = historial[historial.length-1];
+    let maps = `https://www.google.com/maps?q=${u.lat},${u.lon}`;
 
-ctx.textAlign="center";
+    let mensaje =
+`🚗 *CONTROL DE RECORRIDO*
 
-ctx.fillStyle="#22c55e";
-ctx.font="bold 45px Arial";
-ctx.fillText("CONTROL DE RECORRIDOS ISMAEL",canvas.width/2,70);
+📅 ${u.fecha}
+📍 Lugar: ${u.lugar}
+🛣 Kilometraje: ${u.kilometraje}
+⛽ Combustible: ${u.combustible}/8
+📍 Ubicación: ${maps}
 
-ctx.fillStyle="#ffffff";
-ctx.font="26px Arial";
-ctx.fillText("Salida: "+datos.lugarSalida,canvas.width/2,140);
-ctx.fillText("Destino: "+datos.destino,canvas.width/2,180);
-ctx.fillText("Inicio: "+datos.kmSalida+" km",canvas.width/2,230);
-ctx.fillText("Final: "+datos.kmRegreso+" km",canvas.width/2,270);
-ctx.fillText("Fecha Inicio: "+datos.horaInicio,canvas.width/2,310);
-ctx.fillText("Fecha Final: "+datos.horaFinal,canvas.width/2,340);
+Control de Recorridos Ismael`;
 
-ctx.fillStyle="#fbbf24";
-ctx.fillText("Total recorrido: "+datos.recorrido+" km",canvas.width/2,380);
-
-function dibujarTanque(valor,y){
-
-  const max=8;
-  const ancho=700;
-  const alto=70;
-  const x=(canvas.width-ancho)/2;
-  const segmento = ancho / max;
-
-  ctx.shadowColor="rgba(0,0,0,0.6)";
-  ctx.shadowBlur=20;
-
-  for(let i=0;i<max;i++){
-    const gradFondo=ctx.createLinearGradient(0,y,0,y+alto);
-    gradFondo.addColorStop(0,"#4b5563");
-    gradFondo.addColorStop(1,"#111827");
-
-    ctx.fillStyle=gradFondo;
-    roundRect(ctx,x+(segmento*i)+6,y+6,segmento-12,alto-12,14,true,false);
-  }
-
-  ctx.shadowBlur=0;
-
-  const grad=ctx.createLinearGradient(x,y,x+ancho,y);
-  grad.addColorStop(0,"#ef4444");
-  grad.addColorStop(0.5,"#facc15");
-  grad.addColorStop(1,"#22c55e");
-
-  for(let i=0;i<valor;i++){
-    ctx.fillStyle=grad;
-    roundRect(ctx,x+(segmento*i)+6,y+6,segmento-12,alto-12,14,true,false);
-  }
-
-  const brillo=ctx.createLinearGradient(0,y,0,y+alto);
-  brillo.addColorStop(0,"rgba(255,255,255,0.4)");
-  brillo.addColorStop(0.5,"rgba(255,255,255,0.1)");
-  brillo.addColorStop(1,"rgba(255,255,255,0)");
-
-  ctx.fillStyle=brillo;
-  roundRect(ctx,x,y,ancho,alto,20,true,false);
-
-  ctx.lineWidth=3;
-  ctx.strokeStyle="#ffffff";
-  roundRect(ctx,x,y,ancho,alto,20,false,true);
-
-  ctx.fillStyle="#ffffff";
-  ctx.font="bold 24px Arial";
-  ctx.fillText(valor+"/8",canvas.width/2,y+45);
+    window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
 }
 
-function roundRect(ctx,x,y,width,height,radius,fill,stroke){
-  ctx.beginPath();
-  ctx.moveTo(x+radius,y);
-  ctx.lineTo(x+width-radius,y);
-  ctx.quadraticCurveTo(x+width,y,x+width,y+radius);
-  ctx.lineTo(x+width,y+height-radius);
-  ctx.quadraticCurveTo(x+width,y+height,x+width-radius,y+height);
-  ctx.lineTo(x+radius,y+height);
-  ctx.quadraticCurveTo(x,y+height,x,y+height-radius);
-  ctx.lineTo(x,y+radius);
-  ctx.quadraticCurveTo(x,y,x+radius,y);
-  ctx.closePath();
-  if(fill) ctx.fill();
-  if(stroke) ctx.stroke();
+function mostrarHistorial(){
+    let lista = document.getElementById("lista");
+    let historial = JSON.parse(localStorage.getItem("historial")) || [];
+    lista.innerHTML="";
+
+    historial.forEach(reg=>{
+        let link = `https://www.google.com/maps?q=${reg.lat},${reg.lon}`;
+        lista.innerHTML += `
+        <div class="item">
+            <strong>${reg.fecha}</strong><br>
+            Lugar: ${reg.lugar}<br>
+            KM: ${reg.kilometraje}<br>
+            Combustible: ${reg.combustible}/8<br>
+            <a href="${link}" target="_blank">Ver Ubicación</a>
+        </div>
+        `;
+    });
 }
 
-ctx.fillStyle="#ffffff";
-ctx.fillText("Combustible Inicio",canvas.width/2,440);
-dibujarTanque(datos.combInicio,470);
-
-ctx.fillText("Combustible Final",canvas.width/2,580);
-dibujarTanque(datos.combFin,610);
-
-let fotoSalidaImg=null;
-let fotoRegresoImg=null;
-
-if(datos.fotoSalida) fotoSalidaImg=await cargarImagen(datos.fotoSalida);
-if(datos.fotoRegreso) fotoRegresoImg=await cargarImagen(datos.fotoRegreso);
-
-const anchoFoto=400;
-const altoFoto=300;
-const espacio=80;
-const totalAncho=(anchoFoto*2)+espacio;
-const inicioX=(canvas.width-totalAncho)/2;
-
-if(fotoSalidaImg){
-  ctx.fillText("Foto Salida",inicioX+(anchoFoto/2),730);
-  ctx.drawImage(fotoSalidaImg,inicioX,760,anchoFoto,altoFoto);
+function vaciarHistorial(){
+    if(confirm("¿Seguro que deseas borrar todo?")){
+        localStorage.removeItem("historial");
+        mostrarHistorial();
+    }
 }
 
-if(fotoRegresoImg){
-  ctx.fillText("Foto Regreso",inicioX+anchoFoto+espacio+(anchoFoto/2),730);
-  ctx.drawImage(fotoRegresoImg,inicioX+anchoFoto+espacio,760,anchoFoto,altoFoto);
-}
-
-imagenBase64=canvas.toDataURL("image/png");
-document.getElementById("imgGenerada").src=imagenBase64;
-}
-
-async function calcularRecorrido(){
-
-const kmSalida=parseFloat(localStorage.getItem("kmSalida"));
-const kmRegreso=parseFloat(document.getElementById("kmRegreso").value);
-
-const datos={
-  lugarSalida:localStorage.getItem("lugarSalida")||"Oficina",
-  destino:document.getElementById("destino").value||"Sin especificar",
-  kmSalida,
-  kmRegreso,
-  recorrido:kmRegreso-kmSalida,
-  horaInicio:formatearFecha(localStorage.getItem("horaInicio")),
-  horaFinal:formatearFecha(new Date()),
-  combInicio:parseInt(localStorage.getItem("combSalida")),
-  combFin:parseInt(document.getElementById("combRegreso").value),
-  fotoSalida:document.getElementById("fotoSalida").files[0],
-  fotoRegreso:document.getElementById("fotoRegreso").files[0]
-};
-
-await generarImagen(datos);
-document.getElementById("btnWhats").style.display="block";
-}
-
-async function compartirWhatsApp(){
-
-const fechaArchivo=formatearFecha(new Date()).replace(" ","_").replace(":","-");
-const nombreArchivo=`Recorrido_${fechaArchivo}.png`;
-
-const response=await fetch(imagenBase64);
-const blob=await response.blob();
-const file=new File([blob],nombreArchivo,{type:"image/png"});
-
-if(navigator.canShare && navigator.canShare({files:[file]})){
-  await navigator.share({files:[file]});
-}else{
-  const link=document.createElement("a");
-  link.href=imagenBase64;
-  link.download=nombreArchivo;
-  link.click();
-}
-}
+mostrarHistorial();
+actualizarBarra();
 
 </script>
+
 </body>
 </html>
-
-
-
-
-
