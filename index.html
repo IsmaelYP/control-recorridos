@@ -92,17 +92,17 @@ img{
 
 <h2>Control de Recorridos</h2>
 
-<label>Lugar</label>
+<label>📍 Lugar</label>
 <input type="text" id="lugar">
 
-<label>Kilometraje</label>
+<label>🛣 Kilometraje</label>
 <input type="number" id="kilometraje">
 
 <label>Respaldo Fotografico</label>
 <input type="file" id="foto" accept="image/*" capture="environment">
 <img id="preview">
 
-<label>Combustible</label>
+<label>⛽ Combustible</label>
 <select id="combustible" onchange="actualizarBarra()">
 <option value="0">0/8</option>
 <option value="1">1/8</option>
@@ -274,14 +274,14 @@ async function enviarWhatsApp(){
 
     ctx.fillStyle = "white";
     ctx.font = "26px Arial";
-    ctx.fillText("Fecha: " + u.fecha, 80, 160);
-    ctx.fillText("Lugar: " + u.lugar, 80, 200);
-    ctx.fillText("Kilometraje: " + u.kilometraje, 80, 240);
+    ctx.fillText("📅 Fecha: " + u.fecha, 80, 160);
+    ctx.fillText("📍 Lugar: " + u.lugar, 80, 200);
+    ctx.fillText("🛣 Kilometraje: " + u.kilometraje, 80, 240);
 
 // ===== TITULO UBICACION =====
 ctx.fillStyle = "#00e676";
 ctx.font = "bold 28px Arial";
-ctx.fillText("Ubicación:", 80, 280);
+ctx.fillText("📍 Ubicación:", 80, 280);
 
 ctx.fillStyle = "white";
 ctx.font = "24px Arial";
@@ -293,7 +293,7 @@ ctx.fillText("Lon: " + u.lon, 80, 345);
 // ===== TITULO COMBUSTIBLE =====
 ctx.fillStyle = "#00e676";
 ctx.font = "bold 28px Arial";
-ctx.fillText("Combustible:", 80, 380);
+ctx.fillText("⛽ Combustible:", 80, 380);
     let startX = 80;
     let startY = 400;
     let width = 70;
@@ -425,6 +425,7 @@ actualizarBarra();
 
 </body>
 </html>
+
 
 
 
