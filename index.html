@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Recorridos IYP</title>
+<!-- Creditos Ismael Yat Pérez -->
+<title>Control de Recorridos</title>
 
 <style>
 body{
@@ -47,6 +48,14 @@ button{
     border-radius:3px;
 }
 .activo{ background:#00e676; }
+
+.bajo{
+    background:#FFD600 !important;
+}
+
+.medio{
+    background:#00e676 !important;
+}
 .agotado{
     background:red !important;
     animation:parpadeo 1s infinite;
@@ -81,7 +90,7 @@ img{
 <div class="container">
 <div class="card">
 
-<h2>Control de Recorridos IYP</h2>
+<h2>Control de Recorridos</h2>
 
 <label>Lugar</label>
 <input type="text" id="lugar">
@@ -145,21 +154,39 @@ function crearBarra(){
 crearBarra();
 
 function actualizarBarra(){
+
     let valor = parseInt(document.getElementById("combustible").value);
     let segmentos = document.querySelectorAll(".segmento");
     let alerta = document.getElementById("alerta");
 
     segmentos.forEach((seg,i)=>{
-        seg.classList.remove("activo","agotado");
+        seg.classList.remove("activo","agotado","bajo","medio");
+
         if(i < valor){
-            seg.classList.add("activo");
+
+            if(valor === 0){
+                seg.classList.add("agotado");
+            }
+            else if(valor <= 3){
+                seg.classList.add("bajo"); // Amarillo
+            }
+            else{
+                seg.classList.add("medio"); // Verde
+            }
+
         }
     });
 
+    // Mensajes
     if(valor === 0){
         segmentos.forEach(seg=>seg.classList.add("agotado"));
         alerta.innerHTML="🚨 COMBUSTIBLE AGOTADO";
-    } else {
+    }
+    else if(valor <= 3){
+        alerta.innerHTML="⚠ NIVEL BAJO DE COMBUSTIBLE";
+        alerta.style.color = "#FFD600";
+    }
+    else{
         alerta.innerHTML="";
     }
 }
@@ -219,11 +246,9 @@ async function enviarWhatsApp(){
 
     let historial = JSON.parse(localStorage.getItem("historial")) || [];
 
-    // Si no hay registros, intentamos guardar automáticamente
     if(historial.length === 0){
         await guardar();
         historial = JSON.parse(localStorage.getItem("historial")) || [];
-        
         if(historial.length === 0){
             alert("No se pudo generar el registro");
             return;
@@ -231,6 +256,99 @@ async function enviarWhatsApp(){
     }
 
     let u = historial[historial.length-1];
+
+    // ===== CREAR CANVAS =====
+    let canvas = document.createElement("canvas");
+    canvas.width = 900;
+    canvas.height = 700;
+    let ctx = canvas.getContext("2d");
+
+    // ===== FONDO =====
+    ctx.fillStyle = "#121212";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // ===== TARJETA =====
+    ctx.fillStyle = "#1e1e1e";
+    ctx.fillRect(40,40,820,620);
+
+    // ===== TITULO =====
+    ctx.fillStyle = "#00e676";
+    ctx.font = "bold 42px Arial";
+    ctx.fillText("CONTROL DE RECORRIDO", 80, 110);
+
+    // ===== DATOS =====
+    ctx.fillStyle = "white";
+    ctx.font = "28px Arial";
+
+    ctx.fillText("Fecha: " + u.fecha, 80, 170);
+    ctx.fillText("Lugar: " + u.lugar, 80, 215);
+    ctx.fillText("Kilometraje: " + u.kilometraje, 80, 260);
+
+    ctx.fillStyle = "#4fc3f7";
+    ctx.fillText("Lat: " + u.lat, 80, 305);
+    ctx.fillText("Lon: " + u.lon, 80, 340);
+
+    // ===== BARRA DE COMBUSTIBLE =====
+    let combustible = parseInt(u.combustible);
+
+    ctx.fillStyle = "white";
+    ctx.fillText("Combustible:", 80, 390);
+
+    let startX = 80;
+    let startY = 410;
+    let width = 70;
+    let height = 25;
+    let gap = 8;
+
+for(let i=0;i<8;i++){
+
+    // Color según nivel
+    let colorActivo;
+
+    if(combustible === 0){
+        colorActivo = "red";
+    }
+    else if(combustible <= 3){
+        colorActivo = "#FFD600"; // Amarillo
+    }
+    else{
+        colorActivo = "#00e676"; // Verde
+    }
+
+    if(i < combustible){
+        ctx.fillStyle = colorActivo;
+    }else{
+        ctx.fillStyle = "#333";
+    }
+
+    ctx.fillRect(startX + i*(width+gap), startY, width, height);
+}
+
+    // ===== FOTO =====
+    if(u.foto){
+
+        let img = new Image();
+        img.src = u.foto;
+
+        await new Promise(resolve=>{
+            img.onload = resolve;
+        });
+
+        ctx.drawImage(img, 80, 470, 350, 170);
+    }
+
+    // ===== PIE =====
+    ctx.fillStyle = "#00e676";
+    ctx.font = "22px Arial";
+    ctx.fillText("Sistema IYP", 80, 660);
+
+    // ===== DESCARGAR =====
+    let linkImg = document.createElement("a");
+    linkImg.download = "reporte_recorrido.png";
+    linkImg.href = canvas.toDataURL("image/png");
+    linkImg.click();
+
+    // ===== MENSAJE WHATSAPP =====
     let maps = `https://www.google.com/maps?q=${u.lat},${u.lon}`;
 
     let mensaje =
@@ -240,27 +358,32 @@ async function enviarWhatsApp(){
 📍 Lugar: ${u.lugar}
 🛣 Kilometraje: ${u.kilometraje}
 ⛽ Combustible: ${u.combustible}/8
-📍 Ubicación: ${maps}
-
-Control de Recorrido`;
+📍 Ubicación: ${maps}`;
 
     window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
 }
 
+
+
+
 function mostrarHistorial(){
+
     let lista = document.getElementById("lista");
     let historial = JSON.parse(localStorage.getItem("historial")) || [];
     lista.innerHTML="";
 
     historial.forEach(reg=>{
+
         let link = `https://www.google.com/maps?q=${reg.lat},${reg.lon}`;
+
         lista.innerHTML += `
         <div class="item">
             <strong>${reg.fecha}</strong><br>
             Lugar: ${reg.lugar}<br>
             KM: ${reg.kilometraje}<br>
             Combustible: ${reg.combustible}/8<br>
-            <a href="${link}" target="_blank">Ver Ubicación</a>
+            GPS:<br>
+            <a href="${link}" target="_blank">${link}</a>
         </div>
         `;
     });
@@ -280,5 +403,3 @@ actualizarBarra();
 
 </body>
 </html>
-
-
