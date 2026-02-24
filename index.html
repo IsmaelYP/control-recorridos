@@ -278,12 +278,22 @@ async function enviarWhatsApp(){
     ctx.fillText("Lugar: " + u.lugar, 80, 200);
     ctx.fillText("Kilometraje: " + u.kilometraje, 80, 240);
 
-    ctx.fillText("Lat: " + u.lat, 80, 280);
-    ctx.fillText("Lon: " + u.lon, 80, 320);
+// ===== TITULO UBICACION =====
+ctx.fillStyle = "#00e676";
+ctx.font = "bold 28px Arial";
+ctx.fillText("Ubicación:", 80, 280);
+
+ctx.fillStyle = "white";
+ctx.font = "24px Arial";
+ctx.fillText("Lat: " + u.lat, 80, 315);
+ctx.fillText("Lon: " + u.lon, 80, 345);
 
     // ===== BARRA COMBUSTIBLE =====
     let combustible = parseInt(u.combustible);
-
+// ===== TITULO COMBUSTIBLE =====
+ctx.fillStyle = "#00e676";
+ctx.font = "bold 28px Arial";
+ctx.fillText("Combustible:", 80, 380);
     let startX = 80;
     let startY = 360;
     let width = 70;
@@ -315,7 +325,7 @@ async function enviarWhatsApp(){
 
         await new Promise(resolve => img.onload = resolve);
 
-        ctx.drawImage(img, 80, 420, 350, 200);
+        ctx.drawImage(img, 80, 460, 350, 200);
     }
 
     // ===== CONVERTIR A ARCHIVO REAL =====
@@ -415,6 +425,7 @@ actualizarBarra();
 
 </body>
 </html>
+
 
 
 
