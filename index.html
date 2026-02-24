@@ -343,10 +343,11 @@ for(let i=0;i<8;i++){
     ctx.fillText("Sistema IYP", 80, 660);
 
     // ===== DESCARGAR =====
-    let linkImg = document.createElement("a");
-    linkImg.download = "reporte_recorrido.png";
-    linkImg.href = canvas.toDataURL("image/png");
-    linkImg.click();
+    canvas.toBlob(function(blob){
+    let url = URL.createObjectURL(blob);
+    // Abrir imagen en nueva pestaña (compatible móvil)
+    window.open(url, "_blank");
+    }, "image/png");
 
     // ===== MENSAJE WHATSAPP =====
     let maps = `https://www.google.com/maps?q=${u.lat},${u.lon}`;
@@ -403,3 +404,4 @@ actualizarBarra();
 
 </body>
 </html>
+
