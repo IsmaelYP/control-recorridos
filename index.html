@@ -345,8 +345,9 @@ for(let i=0;i<8;i++){
     // ===== DESCARGAR =====
     canvas.toBlob(function(blob){
     let url = URL.createObjectURL(blob);
-    // Abrir imagen en nueva pestaña (compatible móvil)
-    window.open(url, "_blank");
+    // Abrir imagen primero
+    let nuevaVentana = window.open(url, "_blank");
+    alert("📸 Mantén presionada la imagen y selecciona 'Guardar en Fotos'. Luego adjúntala en WhatsApp.");
     }, "image/png");
 
     // ===== MENSAJE WHATSAPP =====
@@ -404,4 +405,5 @@ actualizarBarra();
 
 </body>
 </html>
+
 
