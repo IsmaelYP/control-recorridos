@@ -208,7 +208,7 @@ async function guardar(){
     let lugar = document.getElementById("lugar").value;
     let kilometraje = document.getElementById("kilometraje").value;
     let combustible = document.getElementById("combustible").value;
-    let foto = preview.src || "";
+    let foto = null;
 
     if(!lugar || !kilometraje){
         alert("Completa los campos");
@@ -225,15 +225,14 @@ async function guardar(){
 
     let historial = JSON.parse(localStorage.getItem("historial")) || [];
 
-    let registro = {
-        fecha: new Date().toLocaleString(),
-        lugar,
-        kilometraje,
-        combustible,
-        lat: gps.lat,
-        lon: gps.lon,
-        foto
-    };
+let registro = {
+    fecha: new Date().toLocaleString(),
+    lugar,
+    kilometraje,
+    combustible,
+    lat: gps.lat,
+    lon: gps.lon
+};
 
     historial.push(registro);
     localStorage.setItem("historial", JSON.stringify(historial));
@@ -309,9 +308,10 @@ async function enviarWhatsApp(){
     }
 
     // ===== FOTO =====
-    if(u.foto){
-        let img = new Image();
-        img.src = u.foto;
+    if(preview.src){
+    let img = new Image();
+    img.src = preview.src;
+        
 
         await new Promise(resolve => img.onload = resolve);
 
@@ -344,17 +344,28 @@ Ubicación: ${maps}`;
 
     // 🔥 INTENTAR COMPARTIR DIRECTO (IPHONE & ANDROID)
     if (navigator.share) {
-        try{
-            await navigator.share({
-                title: "Control de Recorrido",
-                text: texto,
-                files: [file]
-            });
-            return; // si funciona salimos
-        }catch(err){
-            console.log("Share cancelado o no soportado");
-        }
+    try{
+        await navigator.share({
+            title: "Control de Recorrido",
+            text: texto,
+            files: [file]
+        });
+
+        // 🔥 LIMPIAR FOTO DESPUÉS DE ENVIAR
+        preview.src = "";
+        document.getElementById("foto").value = "";
+
+        return; // si funciona salimos
+
+    }catch(err){
+        console.log("Share cancelado o no soportado");
     }
+}
+
+        document.getElementById("lugar").value = "";
+document.getElementById("kilometraje").value = "";
+document.getElementById("combustible").value = "8";
+actualizarBarra();
 
     // 🔥 FALLBACK PARA IPHONE PROBLEMÁTICO
     const url = URL.createObjectURL(blob);
@@ -404,6 +415,7 @@ actualizarBarra();
 
 </body>
 </html>
+
 
 
 
