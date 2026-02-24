@@ -319,15 +319,21 @@ async function enviarWhatsApp(){
     }
 
     // ===== CONVERTIR A ARCHIVO REAL =====
+
     canvas.toBlob(async function(blob){
 
-        const file = new File([blob], "reporte_recorrido.png", {
-            type: "image/png"
-        });
+    if(!blob){
+        alert("No se pudo generar la imagen.");
+        return;
+    }
 
-        const maps = `https://www.google.com/maps?q=${u.lat},${u.lon}`;
+    const file = new File([blob], "reporte_recorrido.png", {
+        type: "image/png"
+    });
 
-        const texto =
+    const maps = `https://www.google.com/maps?q=${u.lat},${u.lon}`;
+
+    const texto =
 `🚗 CONTROL DE RECORRIDO IYP
 
 Fecha: ${u.fecha}
@@ -336,24 +342,27 @@ KM: ${u.kilometraje}
 Combustible: ${u.combustible}/8
 Ubicación: ${maps}`;
 
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-
-            try{
-                await navigator.share({
-                    title: "Control de Recorrido",
-                    text: texto,
-                    files: [file]
-                });
-            }catch(err){
-                console.log("Cancelado");
-            }
-
-        } else {
-            alert("Tu navegador no soporta compartir archivos directamente.");
+    // 🔥 INTENTAR COMPARTIR DIRECTO (IPHONE & ANDROID)
+    if (navigator.share) {
+        try{
+            await navigator.share({
+                title: "Control de Recorrido",
+                text: texto,
+                files: [file]
+            });
+            return; // si funciona salimos
+        }catch(err){
+            console.log("Share cancelado o no soportado");
         }
+    }
 
-    }, "image/png");
-}
+    // 🔥 FALLBACK PARA IPHONE PROBLEMÁTICO
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    alert("Mantén presionada la imagen y selecciona 'Guardar en Fotos', luego adjúntala en WhatsApp.");
+
+}, "image/png");
+
 
 
 
@@ -395,6 +404,7 @@ actualizarBarra();
 
 </body>
 </html>
+
 
 
 
