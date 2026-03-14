@@ -349,7 +349,9 @@ for (let i = 0; i < 8; i++) {
     ctx.fillStyle = i < combustible ? colorActivo : "#333";
     ctx.fillRect(startX + i * (width + gap), startY, width, height);
 }
-
+// bajar posición después de la barra
+y += height + 40;
+    
     // ===== FOTO =====
     if(preview.src){
     let img = new Image();
