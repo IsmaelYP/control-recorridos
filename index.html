@@ -302,46 +302,53 @@ ctx.fillText("📍 Lugar: " + u.lugar, 80, y);
 y += espacio;
 
 ctx.fillText("🛣 Kilometraje: " + u.kilometraje, 80, y);
-y += espacio;
+y += espacio + 10;
+
+
 // ===== TITULO UBICACION =====
 ctx.fillStyle = "#00e676";
 ctx.font = "bold 28px Arial";
 ctx.fillText("📍 Ubicación:", 80, y);
 y += espacio;
-    
+
 ctx.fillStyle = "white";
 ctx.font = "24px Arial";
-ctx.fillText("Lat: " + u.lat, 80, 315);
-ctx.fillText("Lon: " + u.lon, 80, 345);
+ctx.fillText("Lat: " + u.lat, 80, y);
+y += espacio;
 
-    // ===== BARRA COMBUSTIBLE =====
-    let combustible = parseInt(u.combustible);
+ctx.fillText("Lon: " + u.lon, 80, y);
+y += espacio + 10;
+
+
+// ===== BARRA COMBUSTIBLE =====
+let combustible = parseInt(u.combustible);
+
 // ===== TITULO COMBUSTIBLE =====
 ctx.fillStyle = "#00e676";
 ctx.font = "bold 28px Arial";
-ctx.fillText("⛽ Combustible:", 80, 380);
-    let startX = 80;
-    let startY = 400;
-    let width = 70;
-    let height = 25;
-    let gap = 8;
+ctx.fillText("⛽ Combustible:", 80, y);
+y += espacio;
 
-    let colorActivo;
+let startX = 80;
+let startY = y;
+let width = 70;
+let height = 25;
+let gap = 8;
 
-    if(combustible === 0){
-        colorActivo = "red";
-    }
-    else if(combustible <= 3){
-        colorActivo = "#FFD600";
-    }
-    else{
-        colorActivo = "#00e676";
-    }
+let colorActivo;
 
-    for(let i=0;i<8;i++){
-        ctx.fillStyle = i < combustible ? colorActivo : "#333";
-        ctx.fillRect(startX + i*(width+gap), startY, width, height);
-    }
+if (combustible === 0) {
+    colorActivo = "red";
+} else if (combustible <= 3) {
+    colorActivo = "#FFD600";
+} else {
+    colorActivo = "#00e676";
+}
+
+for (let i = 0; i < 8; i++) {
+    ctx.fillStyle = i < combustible ? colorActivo : "#333";
+    ctx.fillRect(startX + i * (width + gap), startY, width, height);
+}
 
     // ===== FOTO =====
     if(preview.src){
