@@ -286,11 +286,22 @@ async function enviarWhatsApp(){
     ctx.font = "26px Arial";
 
 
-    ctx.fillText("📅 Fecha: " + u.fecha, 80, 160);
-ctx.fillText("Piloto: " + u.piloto, 80, 180);
-ctx.fillText("Placa: " + u.placa, 80, 190);
-    ctx.fillText("📍 Lugar: " + u.lugar, 80, 200);
-    ctx.fillText("🛣 Kilometraje: " + u.kilometraje, 80, 240);
+let y = 160;
+let espacio = 30;
+
+ctx.fillText("📅 Fecha: " + u.fecha, 80, y);
+y += espacio;
+
+ctx.fillText("Piloto: " + u.piloto, 80, y);
+y += espacio;
+
+ctx.fillText("Placa: " + u.placa, 80, y);
+y += espacio;
+
+ctx.fillText("📍 Lugar: " + u.lugar, 80, y);
+y += espacio;
+
+ctx.fillText("🛣 Kilometraje: " + u.kilometraje, 80, y);
 
 // ===== TITULO UBICACION =====
 ctx.fillStyle = "#00e676";
