@@ -302,12 +302,13 @@ ctx.fillText("📍 Lugar: " + u.lugar, 80, y);
 y += espacio;
 
 ctx.fillText("🛣 Kilometraje: " + u.kilometraje, 80, y);
-
+y += espacio;
 // ===== TITULO UBICACION =====
 ctx.fillStyle = "#00e676";
 ctx.font = "bold 28px Arial";
-ctx.fillText("📍 Ubicación:", 80, 280);
-
+ctx.fillText("📍 Ubicación:", 80, y);
+y += espacio;
+    
 ctx.fillStyle = "white";
 ctx.font = "24px Arial";
 ctx.fillText("Lat: " + u.lat, 80, 315);
