@@ -92,6 +92,12 @@ img{
 
 <h2>Control de Recorridos</h2>
 
+<label> Piloto</label>
+<input type="text" id="piloto">
+
+<label> Placa </label>
+<input type="text" id="placa">
+
 <label>📍 Lugar</label>
 <input type="text" id="lugar">
 
@@ -205,6 +211,8 @@ function obtenerGPS(){
 
 async function guardar(){
 
+    let piloto = document.getElementById("piloto").value;
+    let placa = document.getElementById("placa").value;
     let lugar = document.getElementById("lugar").value;
     let kilometraje = document.getElementById("kilometraje").value;
     let combustible = document.getElementById("combustible").value;
@@ -274,7 +282,11 @@ async function enviarWhatsApp(){
 
     ctx.fillStyle = "white";
     ctx.font = "26px Arial";
+
+
     ctx.fillText("📅 Fecha: " + u.fecha, 80, 160);
+ctx.fillText("Piloto: " + u.piloto, 80, 200);
+ctx.fillText("Placa: " + u.placa, 80, 200);
     ctx.fillText("📍 Lugar: " + u.lugar, 80, 200);
     ctx.fillText("🛣 Kilometraje: " + u.kilometraje, 80, 240);
 
@@ -347,6 +359,8 @@ ctx.fillText("⛽ Combustible:", 80, 380);
 `🚗 DESTINO 🚗
 
 Fecha: ${u.fecha}
+Piloto: ${u.pilto}
+Placa: ${u.placa}
 Lugar: ${u.lugar}
 KM: ${u.kilometraje}
 Combustible: ${u.combustible}/8
@@ -373,6 +387,8 @@ Ubicación: ${maps}`;
 }
 
         document.getElementById("lugar").value = "";
+document.getElementById("piloto").value = "";
+document.getElementById("placa").value = "";
 document.getElementById("kilometraje").value = "";
 document.getElementById("combustible").value = "8";
 actualizarBarra();
@@ -401,7 +417,9 @@ function mostrarHistorial(){
         lista.innerHTML += `
         <div class="item">
             <strong>${reg.fecha}</strong><br>
-            Lugar: ${reg.lugar}<br>
+Piloto: ${reg.piloto}<br>
+Placa: ${reg.placa}<br>            
+Lugar: ${reg.lugar}<br>
             KM: ${reg.kilometraje}<br>
             Combustible: ${reg.combustible}/8<br>
             GPS:<br>
